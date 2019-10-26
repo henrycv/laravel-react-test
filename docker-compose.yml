@@ -16,13 +16,9 @@ services:
       dockerfile: ./docker/php/Dockerfile
       args:
         APP_DIR: ${APP_DIR}
-    image: docker-php
     container_name: ${PREFIX_PROJECT}docker-php
-    restart: unless-stopped
-    tty: true
+    restart: on-failure
     environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
       APP_NAME: ${APP_NAME}
     working_dir: ${APP_DIR}
     links:
@@ -39,8 +35,7 @@ services:
     container_name: ${PREFIX_PROJECT}docker-nginx
     links:
       - docker-php
-    restart: unless-stopped
-    tty: true
+    restart: on-failure
     environment:
       APP_DIR: ${APP_DIR}
     ports:
@@ -56,13 +51,12 @@ services:
   docker-mysql:
     image: mysql:8.0.18
     container_name: ${PREFIX_PROJECT}docker-mysql
-    tty: true
     ports:
       - "3306:3306"
     expose:
       - "3306"
     command: --default-authentication-plugin=mysql_native_password
-    restart: always
+    restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ${DB_DATABASE}
