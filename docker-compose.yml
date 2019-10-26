@@ -1,0 +1,79 @@
+##
+## Name: henry-carbajal-challenge
+## Dockerfile to build a LEMP stack image for querying purposes to PHP Challenge.
+## Author: https://about.me/henrycv
+##
+## Description: this image contains the version 7.3 of PHP-FPM.
+##
+
+version: '3'
+services:
+
+
+  docker-php:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+      args:
+        APP_DIR: ${APP_DIR}
+    image: docker-php
+    container_name: ${PREFIX_PROJECT}docker-php
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+      APP_NAME: ${APP_NAME}
+    working_dir: ${APP_DIR}
+    links:
+      - docker-mysql
+    volumes:
+      - ./:${APP_DIR}
+      - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - lemp-network
+
+
+  docker-nginx:
+    image: nginx:1.17.5
+    container_name: ${PREFIX_PROJECT}docker-nginx
+    links:
+      - docker-php
+    restart: unless-stopped
+    tty: true
+    environment:
+      APP_DIR: ${APP_DIR}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:${APP_DIR}
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - lemp-network
+
+
+  docker-mysql:
+    image: mysql:8.0.18
+    container_name: ${PREFIX_PROJECT}docker-mysql
+    tty: true
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql/
+    networks:
+      - lemp-network
+
+
+networks:
+  lemp-network:
+    driver: bridge
