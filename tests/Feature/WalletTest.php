@@ -10,6 +10,8 @@ use App\Transfer;
 
 class WalletTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * A basic test example.
      *
