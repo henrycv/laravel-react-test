@@ -30,8 +30,23 @@ services:
       - lemp-network
 
 
+
+  # docker-node:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/node/Dockerfile
+  #   container_name: ${PREFIX_PROJECT}docker-node
+  #   volumes:
+  #     - ./:${APP_DIR}
+  #   expose:
+  #     - "8080"
+  #   networks:
+  #     - lemp-network
+
+
+
   docker-nginx:
-    image: nginx:1.17.5
+    image: nginx:1.17.5-alpine
     container_name: ${PREFIX_PROJECT}docker-nginx
     links:
       - docker-php
